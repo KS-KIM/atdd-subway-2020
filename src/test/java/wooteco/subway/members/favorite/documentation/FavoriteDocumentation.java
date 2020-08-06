@@ -1,6 +1,18 @@
 package wooteco.subway.members.favorite.documentation;
 
-import com.google.common.collect.Lists;
+import static io.restassured.module.mockmvc.RestAssuredMockMvc.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.headers.HeaderDocumentation.*;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,36 +22,22 @@ import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.web.context.WebApplicationContext;
+
+import com.google.common.collect.Lists;
+import wooteco.security.core.TokenResponse;
 import wooteco.subway.common.documentation.Documentation;
 import wooteco.subway.maps.station.dto.StationResponse;
 import wooteco.subway.members.favorite.application.FavoriteService;
 import wooteco.subway.members.favorite.dto.FavoriteResponse;
 import wooteco.subway.members.favorite.ui.FavoriteController;
-import wooteco.security.core.TokenResponse;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static io.restassured.module.mockmvc.RestAssuredMockMvc.given;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 
 @WebMvcTest(controllers = {FavoriteController.class})
 public class FavoriteDocumentation extends Documentation {
+    protected TokenResponse tokenResponse;
     @Autowired
     private FavoriteController favoriteController;
     @MockBean
     private FavoriteService favoriteService;
-
-    protected TokenResponse tokenResponse;
 
     @BeforeEach
     public void setUp(WebApplicationContext context, RestDocumentationContextProvider restDocumentation) {
@@ -98,10 +96,14 @@ public class FavoriteDocumentation extends Documentation {
                                 fieldWithPath("[].source").type(JsonFieldType.OBJECT).description("출발역"),
                                 fieldWithPath("[].source.id").type(JsonFieldType.NUMBER).description("지하철역 아이디"),
                                 fieldWithPath("[].source.name").type(JsonFieldType.STRING).description("지하철역 이름"),
+                                fieldWithPath("[].source.createdDate").type(JsonFieldType.STRING).description("생성일"),
+                                fieldWithPath("[].source.modifiedDate").type(JsonFieldType.STRING).description("변경일"),
                                 fieldWithPath("[].target").type(JsonFieldType.OBJECT).description("도착역"),
                                 fieldWithPath("[].target.id").type(JsonFieldType.NUMBER).description("지하철역 아이디"),
-                                fieldWithPath("[].target.name").type(JsonFieldType.STRING).description("지하철역 이름")))).
-                extract();
+                                fieldWithPath("[].target.name").type(JsonFieldType.STRING).description("지하철역 이름"),
+                                fieldWithPath("[].target.createdDate").type(JsonFieldType.STRING).description("생성일"),
+                                fieldWithPath("[].target.modifiedDate").type(JsonFieldType.STRING).description("변경일"))))
+                .extract();
     }
 
     @Test
