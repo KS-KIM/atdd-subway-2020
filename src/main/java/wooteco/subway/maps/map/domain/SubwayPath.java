@@ -18,10 +18,6 @@ public class SubwayPath {
         this.lineStationEdges = lineStationEdges;
     }
 
-    public List<LineStationEdge> getLineStationEdges() {
-        return lineStationEdges;
-    }
-
     public List<Long> extractStationId() {
         List<Long> stationIds = Lists.newArrayList(lineStationEdges.get(0).getLineStation().getPreStationId());
         stationIds.addAll(lineStationEdges.stream()
@@ -29,6 +25,12 @@ public class SubwayPath {
                 .collect(Collectors.toList()));
 
         return stationIds;
+    }
+
+    public List<Long> extractLineId() {
+        return lineStationEdges.stream()
+                .map(LineStationEdge::getLineId)
+                .collect(Collectors.toList());
     }
 
     public int calculateDuration() {
@@ -39,14 +41,11 @@ public class SubwayPath {
         return lineStationEdges.stream().mapToInt(it -> it.getLineStation().getDistance()).sum();
     }
 
-    public int calculateFare() {
+    public int calculateFare(int distance) {
         int totalFare = DEFAULT_FARE;
-
-        int distance = calculateDistance();
         if (distance > OVER_FARE_UPPER_BOUND) {
             totalFare += calculateOverFareByDistance(distance - OVER_FARE_UPPER_BOUND);
         }
-
         return totalFare;
     }
 
@@ -68,5 +67,9 @@ public class SubwayPath {
             return fare - ((fare - 350) / 2);
         }
         return fare;
+    }
+
+    public List<LineStationEdge> getLineStationEdges() {
+        return lineStationEdges;
     }
 }

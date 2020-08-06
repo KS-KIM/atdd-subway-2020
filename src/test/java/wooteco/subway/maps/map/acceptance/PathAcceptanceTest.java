@@ -25,7 +25,9 @@ public class PathAcceptanceTest extends AcceptanceTest {
     private Long 매봉역;
     private Long 도곡역;
     private Long 대치역;
+    private Long 서울역;
     private Long 학여울역;
+    private Long 일호선;
     private Long 이호선;
     private Long 신분당선;
     private Long 삼호선;
@@ -48,18 +50,23 @@ public class PathAcceptanceTest extends AcceptanceTest {
         남부터미널역 = 지하철역_등록되어_있음("남부터미널역");
         매봉역 = 지하철역_등록되어_있음("매봉역");
         도곡역 = 지하철역_등록되어_있음("도곡역");
+        서울역 = 지하철역_등록되어_있음("서울역");
         대치역 = 지하철역_등록되어_있음("대치역");
         학여울역 = 지하철역_등록되어_있음("학여울역");
 
+        일호선 = 지하철_노선_등록되어_있음("1호선", "BLUE", "1000");
         이호선 = 지하철_노선_등록되어_있음("2호선", "GREEN");
         신분당선 = 지하철_노선_등록되어_있음("신분당선", "RED");
         삼호선 = 지하철_노선_등록되어_있음("3호선", "ORANGE");
+
+        지하철_노선에_지하철역_등록되어_있음(일호선, null, 서울역, 0, 0);
+        지하철_노선에_지하철역_등록되어_있음(일호선, 서울역, 강남역, 2, 2);
 
         지하철_노선에_지하철역_등록되어_있음(이호선, null, 교대역, 0, 0);
         지하철_노선에_지하철역_등록되어_있음(이호선, 교대역, 강남역, 2, 2);
 
         지하철_노선에_지하철역_등록되어_있음(신분당선, null, 강남역, 0, 0);
-        지하철_노선에_지하철역_등록되어_있음(신분당선, 강남역, 양재역, 2, 1);
+        지하철_노선에_지하철역_등록되어_있음(신분당선, 강남역, 양재역, 10, 1);
 
         지하철_노선에_지하철역_등록되어_있음(삼호선, null, 교대역, 0, 0);
         지하철_노선에_지하철역_등록되어_있음(삼호선, 교대역, 남부터미널역, 1, 2);
@@ -88,7 +95,7 @@ public class PathAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 거리_경로_조회_요청("DURATION", 교대역, 양재역);
         //then
         적절한_경로를_응답(response, Lists.newArrayList(교대역, 강남역, 양재역));
-        총_거리와_소요_시간과_금액을_함께_응답함(response, 4, 3, 1_250);
+        총_거리와_소요_시간과_금액을_함께_응답함(response, 12, 3, 1_350);
     }
 
     @DisplayName("두 역 사이의 거리가 10km 이상이면 5km당 추가 요금이 부과된다.")
@@ -98,12 +105,26 @@ public class PathAcceptanceTest extends AcceptanceTest {
         ExtractableResponse<Response> response = 거리_경로_조회_요청("DISTANCE", 교대역, 학여울역);
 
         //then
-        적절한_경로를_응답(response, Lists.newArrayList(교대역, 남부터미널역, 양재역, 매봉역, 도곡역, 대치역, 학여울역));
         총_거리와_소요_시간과_금액을_함께_응답함(response, 19, 16, 1_450);
+    }
+
+    @DisplayName("두 역 사이에 추가 요금이 있는 노선을 이용할 경우 추가 요금이 부과된다.")
+    @Test
+    void findPathByDistance_OverFareByLine() {
+        //when
+        ExtractableResponse<Response> response = 거리_경로_조회_요청("DISTANCE", 서울역, 교대역);
+
+        //then
+        총_거리와_소요_시간과_금액을_함께_응답함(response, 4, 4, 2_250);
     }
 
     private Long 지하철_노선_등록되어_있음(String name, String color) {
         ExtractableResponse<Response> createLineResponse1 = LineAcceptanceStep.지하철_노선_등록되어_있음(name, color);
+        return createLineResponse1.as(LineResponse.class).getId();
+    }
+
+    private Long 지하철_노선_등록되어_있음(String name, String color, String fare) {
+        ExtractableResponse<Response> createLineResponse1 = LineAcceptanceStep.지하철_노선_등록되어_있음(name, color, fare);
         return createLineResponse1.as(LineResponse.class).getId();
     }
 
