@@ -22,6 +22,10 @@ public class PathAcceptanceTest extends AcceptanceTest {
     private Long 강남역;
     private Long 양재역;
     private Long 남부터미널역;
+    private Long 매봉역;
+    private Long 도곡역;
+    private Long 대치역;
+    private Long 학여울역;
     private Long 이호선;
     private Long 신분당선;
     private Long 삼호선;
@@ -42,6 +46,10 @@ public class PathAcceptanceTest extends AcceptanceTest {
         강남역 = 지하철역_등록되어_있음("강남역");
         양재역 = 지하철역_등록되어_있음("양재역");
         남부터미널역 = 지하철역_등록되어_있음("남부터미널역");
+        매봉역 = 지하철역_등록되어_있음("매봉역");
+        도곡역 = 지하철역_등록되어_있음("도곡역");
+        대치역 = 지하철역_등록되어_있음("대치역");
+        학여울역 = 지하철역_등록되어_있음("학여울역");
 
         이호선 = 지하철_노선_등록되어_있음("2호선", "GREEN");
         신분당선 = 지하철_노선_등록되어_있음("신분당선", "RED");
@@ -56,27 +64,42 @@ public class PathAcceptanceTest extends AcceptanceTest {
         지하철_노선에_지하철역_등록되어_있음(삼호선, null, 교대역, 0, 0);
         지하철_노선에_지하철역_등록되어_있음(삼호선, 교대역, 남부터미널역, 1, 2);
         지하철_노선에_지하철역_등록되어_있음(삼호선, 남부터미널역, 양재역, 2, 2);
+        지하철_노선에_지하철역_등록되어_있음(삼호선, 양재역, 매봉역, 4, 3);
+        지하철_노선에_지하철역_등록되어_있음(삼호선, 매봉역, 도곡역, 4, 3);
+        지하철_노선에_지하철역_등록되어_있음(삼호선, 도곡역, 대치역, 4, 3);
+        지하철_노선에_지하철역_등록되어_있음(삼호선, 대치역, 학여울역, 4, 3);
     }
 
     @DisplayName("두 역의 최단 거리 경로를 조회한다.")
     @Test
     void findPathByDistance() {
         //when
-        ExtractableResponse<Response> response = 거리_경로_조회_요청("DISTANCE", 1L, 3L);
+        ExtractableResponse<Response> response = 거리_경로_조회_요청("DISTANCE", 교대역, 양재역);
 
         //then
         적절한_경로를_응답(response, Lists.newArrayList(교대역, 남부터미널역, 양재역));
-        총_거리와_소요_시간과_금액을_함께_응답함(response, 3, 4, 1250);
+        총_거리와_소요_시간과_금액을_함께_응답함(response, 3, 4, 1_250);
     }
 
     @DisplayName("두 역의 최소 시간 경로를 조회한다.")
     @Test
     void findPathByDuration() {
         //when
-        ExtractableResponse<Response> response = 거리_경로_조회_요청("DURATION", 1L, 3L);
+        ExtractableResponse<Response> response = 거리_경로_조회_요청("DURATION", 교대역, 양재역);
         //then
         적절한_경로를_응답(response, Lists.newArrayList(교대역, 강남역, 양재역));
         총_거리와_소요_시간과_금액을_함께_응답함(response, 4, 3, 1_250);
+    }
+
+    @DisplayName("두 역 사이의 거리가 10km 이상이면 5km당 추가 요금이 부과된다.")
+    @Test
+    void findPathByDistance_OverFareByDistance() {
+        //when
+        ExtractableResponse<Response> response = 거리_경로_조회_요청("DISTANCE", 교대역, 학여울역);
+
+        //then
+        적절한_경로를_응답(response, Lists.newArrayList(교대역, 남부터미널역, 양재역, 매봉역, 도곡역, 대치역, 학여울역));
+        총_거리와_소요_시간과_금액을_함께_응답함(response, 19, 16, 1_450);
     }
 
     private Long 지하철_노선_등록되어_있음(String name, String color) {

@@ -6,6 +6,12 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Lists;
 
 public class SubwayPath {
+    private static final int DEFAULT_FARE = 1_250;
+    private static final int ADDITIONAL_DISTANCE_OVER_FARE_UPPER_BOUND = 40;
+    private static final double DISTANCE_OVER_FARE_UNIT = 5.0;
+    private static final int OVER_FARE_UPPER_BOUND = 10;
+    private static final int DISTANCE_OVER_FARE_PER_UNIT = 100;
+
     private List<LineStationEdge> lineStationEdges;
 
     public SubwayPath(List<LineStationEdge> lineStationEdges) {
@@ -34,13 +40,24 @@ public class SubwayPath {
     }
 
     public int calculateFare() {
-        //@TODO input user age
-        return 0;
+        int totalFare = DEFAULT_FARE;
+
+        int distance = calculateDistance();
+        if (distance > OVER_FARE_UPPER_BOUND) {
+            totalFare += calculateOverFareByDistance(distance - OVER_FARE_UPPER_BOUND);
+        }
+
+        return totalFare;
     }
 
-    private int calculateOverFare() {
-        int distance = calculateDistance();
-        return 0;
+    private int calculateOverFareByDistance(int distance) {
+        if (distance == 0) {
+            return 0;
+        }
+        if (distance > ADDITIONAL_DISTANCE_OVER_FARE_UPPER_BOUND) {
+            distance = ADDITIONAL_DISTANCE_OVER_FARE_UPPER_BOUND;
+        }
+        return (int)(Math.ceil(distance / DISTANCE_OVER_FARE_UNIT) * DISTANCE_OVER_FARE_PER_UNIT);
     }
 
     private int discountByAge(int fare, int age) {
