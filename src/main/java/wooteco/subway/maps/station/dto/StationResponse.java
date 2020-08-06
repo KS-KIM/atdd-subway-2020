@@ -1,10 +1,10 @@
 package wooteco.subway.maps.station.dto;
 
-import wooteco.subway.maps.station.domain.Station;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import wooteco.subway.maps.station.domain.Station;
 
 public class StationResponse {
     private Long id;
@@ -38,5 +38,13 @@ public class StationResponse {
 
     public String getName() {
         return name;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public LocalDateTime getModifiedDate() {
+        return modifiedDate;
     }
 }
